@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"log"
 	"fmt"
 	"flag"
 	"image"
@@ -107,7 +106,6 @@ func odd(i uint8) bool {
 }
 
 func b28rgb(by []byte) (color.RGBA, error) {
-	log.Println(by)
 	if len(by) < 4 {
 		return color.RGBA{}, errors.New("less than 4 byte.")
 	}
