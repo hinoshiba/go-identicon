@@ -11,10 +11,6 @@ import (
 	"crypto/md5"
 )
 
-import (
-	"github.com/lucasb-eyer/go-colorful"
-)
-
 func die(s string, msg ...interface{}) {
 	fmt.Fprintf(os.Stderr, s + "\n" , msg...)
 	os.Exit(1)
@@ -23,7 +19,7 @@ func die(s string, msg ...interface{}) {
 var Seed  string
 var Size int64
 var Fpath string
-var BG_COLOR color.RGBA = color.RGBA{212, 212, 212, 255}
+var BG_COLOR color.RGBA = color.RGBA{240, 240, 240, 255}
 
 func iDicon() error {
 	fbit, cbit, err := seed2bits(Seed)
@@ -110,24 +106,20 @@ func b28rgb(by []byte) (color.RGBA, error) {
 		return color.RGBA{}, errors.New("less than 4 byte.")
 	}
 
-	hue := float64(uint8(by[0]) + uint8(by[1])) * 360 / 4095
-	sat := 65 - (float64(uint8(by[1])) * 20 / 255)
-	lum := 75 - (float64(uint8(by[2])) * 20 / 255)
+	hue := float64(int64(by[0]) * 255 + int64(by[1])) / 4095.0
+	sat := 65 - (float64(uint8(by[1])) * 20.0 / 255.0)
+	lum := 75 - (float64(uint8(by[2])) * 20.0 / 255.0)
 
-	cl := colorful.Hcl(hue, sat, lum)
-	r, g, b := cl.RGB255()
-
-	//rgba := hsl2rgba(hue, sat, lum)
-	//return rgba, nil
-	return color.RGBA{r, g, b, 255}, nil
+	rgba := hsl2rgb(hue, sat, lum)
+	return rgba, nil
 }
 
-func hsl2rgba(h, s, l float64) color.RGBA {
+func hsl2rgb(h, s, l float64) color.RGBA {
 	if s == 0 {
 		r := uint8(l * 255)
 		g := uint8(l * 255)
 		b := uint8(l * 255)
-		return color.RGBA{r, g, b, 240}
+		return color.RGBA{r, g, b, 255}
 	}
 
 	var v1, v2 float64
@@ -136,11 +128,11 @@ func hsl2rgba(h, s, l float64) color.RGBA {
 	} else {
 		v2 = (l + s) - (s * l)
 	}
-	v1 = 2*l - v2
+	v1 = 2 * l - v2
 
-	r := uint8(255 * hue2rgb(v1, v2, h + (1/3)))
+	r := uint8(255 * hue2rgb(v1, v2, h + (1.0 / 3.0)))
 	g := uint8(255 * hue2rgb(v1, v2, h))
-	b := uint8(255 * hue2rgb(v1, v2, h - (1/3)))
+	b := uint8(255 * hue2rgb(v1, v2, h - (1.0 / 3.0)))
 
 	return color.RGBA{r, g, b, 255}
 }
@@ -159,7 +151,7 @@ func hue2rgb(v1, v2, vH float64) float64 {
 		return v2
 	}
 	if (3 * vH) < 2 {
-		return (v1 + (v2-v1) * ((2/3) - vH) * 6)
+		return (v1 + (v2-v1) * ((2.0/3.0) - vH) * 6)
 	}
 	return v1
 }
